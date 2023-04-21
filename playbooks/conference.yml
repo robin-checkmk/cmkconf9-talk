@@ -1,0 +1,86 @@
+---
+- name: "Set up Checkmk Servers."
+  hosts: servers
+  tags: [setup, full]
+  tasks:
+    - name: "Install Checkmk Server."
+      ansible.builtin.include_role:
+        name: tribe29.checkmk.server
+
+- name: "Set up Checkmk Agents."
+  hosts: agents
+  tags: [setup, full]
+  tasks:
+    - name: "Install Checkmk Agent."
+      ansible.builtin.include_role:
+        name: tribe29.checkmk.agent
+
+- name: "Configure Checkmk."
+  hosts: servers
+  tags: [config, full]
+  tasks:
+    - name: "Create rules."
+      tribe29.checkmk.rule:
+        server_url: "{{ server_url }}"
+        site: "{{ checkmk_site }}"
+        automation_user: "{{ checkmk_user }}"
+        automation_secret: "{{ checkmk_pass }}"
+        ruleset: "{{ item.ruleset }}"
+        rule: "{{ item.rule }}"
+        state: "present"
+      loop: "{{ checkmk_rules }}"
+      run_once: true  # noqa run-once[task]
+      delegate_to: localhost
+
+    - name: "Create host groups."
+      tribe29.checkmk.host_group:
+        server_url: "{{ server_url }}"
+        site: "{{ checkmk_site }}"
+        automation_user: "{{ checkmk_user }}"
+        automation_secret: "{{ checkmk_pass }}"
+        name: "{{ item.name }}"
+        title: "{{ item.title | default(item.name) }}"
+        state: "present"
+      delegate_to: localhost
+      run_once: true  # noqa run-once[task]
+      loop: "{{ checkmk_host_groups }}"
+
+    - name: "Create contact groups."
+      tribe29.checkmk.contact_group:
+        server_url: "{{ server_url }}"
+        site: "{{ checkmk_site }}"
+        automation_user: "{{ checkmk_user }}"
+        automation_secret: "{{ checkmk_pass }}"
+        name: "{{ item.name }}"
+        title: "{{ item.title | default(item.name) }}"
+        state: "present"
+      delegate_to: localhost
+      run_once: true  # noqa run-once[task]
+      loop: "{{ checkmk_contact_groups }}"
+
+    - name: "Create tag groups."
+      tribe29.checkmk.tag_group:
+        server_url: "{{ server_url }}"
+        site: "{{ checkmk_site }}"
+        automation_user: "{{ checkmk_user }}"
+        automation_secret: "{{ checkmk_pass }}"
+        id: "{{ item.id }}"
+        title: "{{ item.title | default(item.id) }}"
+        topic: "{{ item.topic }}"
+        choices: "{{ item.choices }}"
+        state: "present"
+      delegate_to: localhost
+      run_once: true  # noqa run-once[task]
+      loop: "{{ checkmk_tag_groups }}"
+
+    - name: "Activate changes on site."
+      tribe29.checkmk.activation:
+        server_url: "{{ server_url }}"
+        site: "{{ checkmk_site }}"
+        automation_user: "{{ checkmk_user }}"
+        automation_secret: "{{ checkmk_pass }}"
+        force_foreign_changes: 'true'
+        sites:
+          - "{{ checkmk_site }}"
+      delegate_to: localhost
+      run_once: 'true'  # noqa run-once[task]

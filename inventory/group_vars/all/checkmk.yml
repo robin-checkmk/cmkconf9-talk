@@ -1,0 +1,9 @@
+---
+checkmk_version: "2.2.0b4"
+checkmk_edition: cre
+checkmk_site: cmkconf9
+checkmk_user: cmkadmin
+checkmk_pass: cmkconf9
+checkmk_protocol: http
+checkmk_server: 192.168.56.9
+server_url: "{{ checkmk_protocol }}://{{ checkmk_server }}"
