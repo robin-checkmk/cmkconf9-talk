@@ -5,7 +5,7 @@
   tasks:
     - name: "Install Checkmk Server."
       ansible.builtin.include_role:
-        name: tribe29.checkmk.server
+        name: checkmk.general.server
 
 - name: "Set up Checkmk Agents."
   hosts: agents
@@ -13,14 +13,14 @@
   tasks:
     - name: "Install Checkmk Agent."
       ansible.builtin.include_role:
-        name: tribe29.checkmk.agent
+        name: checkmk.general.agent
 
 - name: "Configure Checkmk."
   hosts: servers
   tags: [config, full]
   tasks:
     - name: "Create rules."
-      tribe29.checkmk.rule:
+      checkmk.general.rule:
         server_url: "{{ server_url }}"
         site: "{{ checkmk_site }}"
         automation_user: "{{ checkmk_user }}"
@@ -33,7 +33,7 @@
       delegate_to: localhost
 
     - name: "Create host groups."
-      tribe29.checkmk.host_group:
+      checkmk.general.host_group:
         server_url: "{{ server_url }}"
         site: "{{ checkmk_site }}"
         automation_user: "{{ checkmk_user }}"
@@ -46,7 +46,7 @@
       loop: "{{ checkmk_host_groups }}"
 
     - name: "Create contact groups."
-      tribe29.checkmk.contact_group:
+      checkmk.general.contact_group:
         server_url: "{{ server_url }}"
         site: "{{ checkmk_site }}"
         automation_user: "{{ checkmk_user }}"
@@ -59,7 +59,7 @@
       loop: "{{ checkmk_contact_groups }}"
 
     - name: "Create tag groups."
-      tribe29.checkmk.tag_group:
+      checkmk.general.tag_group:
         server_url: "{{ server_url }}"
         site: "{{ checkmk_site }}"
         automation_user: "{{ checkmk_user }}"
@@ -74,7 +74,7 @@
       loop: "{{ checkmk_tag_groups }}"
 
     - name: "Activate changes on site."
-      tribe29.checkmk.activation:
+      checkmk.general.activation:
         server_url: "{{ server_url }}"
         site: "{{ checkmk_site }}"
         automation_user: "{{ checkmk_user }}"
