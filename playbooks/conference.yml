@@ -19,19 +19,6 @@
   hosts: servers
   tags: [config, full]
   tasks:
-    - name: "Create rules."
-      checkmk.general.rule:
-        server_url: "{{ server_url }}"
-        site: "{{ checkmk_site }}"
-        automation_user: "{{ checkmk_user }}"
-        automation_secret: "{{ checkmk_pass }}"
-        ruleset: "{{ item.ruleset }}"
-        rule: "{{ item.rule }}"
-        state: "present"
-      loop: "{{ checkmk_rules }}"
-      run_once: true  # noqa run-once[task]
-      delegate_to: localhost
-
     - name: "Create host groups."
       checkmk.general.host_group:
         server_url: "{{ server_url }}"
@@ -72,6 +59,19 @@
       delegate_to: localhost
       run_once: true  # noqa run-once[task]
       loop: "{{ checkmk_tag_groups }}"
+
+    - name: "Create rules."
+      checkmk.general.rule:
+        server_url: "{{ server_url }}"
+        site: "{{ checkmk_site }}"
+        automation_user: "{{ checkmk_user }}"
+        automation_secret: "{{ checkmk_pass }}"
+        ruleset: "{{ item.ruleset }}"
+        rule: "{{ item.rule }}"
+        state: "present"
+      loop: "{{ checkmk_rules }}"
+      run_once: true  # noqa run-once[task]
+      delegate_to: localhost
 
     - name: "Activate changes on site."
       checkmk.general.activation:
